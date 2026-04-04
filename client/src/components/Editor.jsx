@@ -50,7 +50,7 @@ export default function Editor({ docId, username }) {
     username,
   });
 
-  // Wire remote cursors via the stable callback
+  // Wire remote cursors
   useEffect(() => {
     const cursors = cursorsModuleRef.current;
     if (!cursors) return;
@@ -84,11 +84,18 @@ export default function Editor({ docId, username }) {
         t2 = setTimeout(() => setSaveIndicator(''), 3500);
       };
       socket.on('yjs-update', handler);
-      return () => { socket.off('yjs-update', handler); clearTimeout(t1); clearTimeout(t2); };
+      return () => {
+        socket.off('yjs-update', handler);
+        clearTimeout(t1);
+        clearTimeout(t2);
+      };
     });
   }, [onSocket]);
 
-  const handleOpenRevisions = () => { fetchRevisions(); setShowRevisions(true); };
+  const handleOpenRevisions = () => {
+    fetchRevisions();
+    setShowRevisions(true);
+  };
 
   const handleRestore = useCallback((delta) => {
     quillRef.current?.setContents(delta);
@@ -101,9 +108,20 @@ export default function Editor({ docId, username }) {
     setTimeout(() => setLinkCopied(false), 2000);
   };
 
+  // ✅ NEW EXPORT FUNCTION
+  const handleExport = () => {
+    const text = quillRef.current?.getText() || '';
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${docId}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="editor-root">
-      {/* Loading overlay */}
       {loading && (
         <div className="editor-loading">
           <div className="loading-spinner" />
@@ -111,7 +129,6 @@ export default function Editor({ docId, username }) {
         </div>
       )}
 
-      {/* Top bar */}
       <header className="editor-topbar">
         <div className="topbar-left">
           <div className="topbar-logo">
@@ -127,23 +144,41 @@ export default function Editor({ docId, username }) {
             <button className="topbar-share-btn" onClick={copyLink} title="Copy invite link">
               {linkCopied ? (
                 <>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
                   Copied!
                 </>
               ) : (
                 <>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                    <polyline points="16 6 12 2 8 6"/>
+                    <line x1="12" y1="2" x2="12" y2="15"/>
+                  </svg>
                   Share
                 </>
               )}
             </button>
           </div>
           {saveIndicator === 'saving' && <span className="save-badge saving">Saving…</span>}
-          {saveIndicator === 'saved'  && <span className="save-badge saved">✓ Saved</span>}
+          {saveIndicator === 'saved' && <span className="save-badge saved">✓ Saved</span>}
         </div>
 
         <div className="topbar-right">
           <UserPresence users={users} connected={connected} />
+
+          {/* ✅ NEW EXPORT BUTTON */}
+          <button className="btn-export" onClick={handleExport} title="Download as .txt">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span className="btn-history-label">Export</span>
+          </button>
+
+          {/* EXISTING BUTTON */}
           <button className="btn-history" onClick={handleOpenRevisions}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 8v4l3 3M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" />
@@ -153,7 +188,6 @@ export default function Editor({ docId, username }) {
         </div>
       </header>
 
-      {/* Editor */}
       <main className="editor-main">
         <div className="editor-page">
           <div ref={editorContainerRef} className="quill-mount" />

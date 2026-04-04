@@ -84,6 +84,26 @@
   white-space: nowrap;
 }
 
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.8rem;
+  background: transparent;
+  color: #8090b8;
+  border: 1px solid #2d3258;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn-export:hover {
+  background: #252840;
+  color: #fff;
+  border-color: #4c6ef5;
+}
+
 .btn-history:hover {
   background: #252840;
   color: #fff;
