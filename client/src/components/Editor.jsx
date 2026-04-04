@@ -9,14 +9,24 @@ import '../styles/editor.css';
 
 Quill.register('modules/cursors', QuillCursors);
 
+// Register custom fonts with Quill
+const Font = Quill.import('formats/font');
+Font.whitelist = ['arial', 'times-new-roman', 'calibri', 'georgia', 'courier-new', 'verdana', 'trebuchet'];
+Quill.register(Font, true);
+
+const Size = Quill.import('attributors/style/size');
+Size.whitelist = ['8px','9px','10px','11px','12px','14px','16px','18px','24px','36px'];
+Quill.register(Size, true);
+
 const TOOLBAR_OPTIONS = [
+  [{ font: ['arial', 'times-new-roman', 'calibri', 'georgia', 'courier-new', 'verdana', 'trebuchet'] }, { size: ['8px','9px','10px','11px','12px','14px','16px','18px','24px','36px'] }],
   [{ header: [1, 2, 3, false] }],
   ['bold', 'italic', 'underline', 'strike'],
   [{ color: [] }, { background: [] }],
+  [{ align: [] }],
   [{ list: 'ordered' }, { list: 'bullet' }],
   [{ indent: '-1' }, { indent: '+1' }],
-  ['blockquote', 'code-block'],
-  ['link'],
+  ['blockquote', 'code-block', 'link', 'image'],
   ['clean'],
 ];
 
