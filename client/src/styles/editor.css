@@ -1,0 +1,565 @@
+/* ── Editor Root ────────────────────────────────────────────────── */
+.editor-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #f0f2f5;
+  overflow: hidden;
+}
+
+/* ── Top Bar ────────────────────────────────────────────────────── */
+.editor-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  height: 52px;
+  background: #1a1d2e;
+  border-bottom: 1px solid #252840;
+  flex-shrink: 0;
+  z-index: 50;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.topbar-logo span {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.topbar-doc-name {
+  font-size: 0.85rem;
+  color: #6070a0;
+  padding-left: 1rem;
+  border-left: 1px solid #252840;
+}
+
+.save-badge {
+  font-size: 0.72rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+.save-badge.saving {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+}
+
+.save-badge.saved {
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-history {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.8rem;
+  background: transparent;
+  color: #8090b8;
+  border: 1px solid #2d3258;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn-history:hover {
+  background: #252840;
+  color: #fff;
+  border-color: #4c6ef5;
+}
+
+/* ── User Presence ──────────────────────────────────────────────── */
+.user-presence {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.connection-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.connection-dot.online {
+  background: #34d399;
+  box-shadow: 0 0 6px rgba(52, 211, 153, 0.5);
+}
+
+.connection-dot.offline {
+  background: #f87171;
+  animation: pulse-dot 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.user-badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: default;
+}
+
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border: 2px solid #1a1d2e;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
+.user-badge:hover .user-avatar {
+  transform: scale(1.15);
+}
+
+.user-name-label {
+  position: absolute;
+  bottom: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1d2e;
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  z-index: 100;
+  border: 1px solid #2d3258;
+}
+
+.user-badge:hover .user-name-label {
+  opacity: 1;
+}
+
+.user-count {
+  font-size: 0.72rem;
+  color: #4a5480;
+  padding-left: 0.25rem;
+}
+
+/* ── Editor Main Area ───────────────────────────────────────────── */
+.editor-main {
+  flex: 1;
+  overflow-y: auto;
+  background: #f0f2f5;
+  padding: 2rem 1rem;
+}
+
+.editor-page {
+  max-width: 860px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  min-height: calc(100vh - 140px);
+}
+
+/* ── Quill Overrides ────────────────────────────────────────────── */
+.quill-mount {
+  display: flex;
+  flex-direction: column;
+  min-height: inherit;
+}
+
+.quill-mount .ql-toolbar.ql-snow {
+  border: none;
+  border-bottom: 1px solid #eee;
+  padding: 0.5rem 0.75rem;
+  background: #fafafa;
+  border-radius: 4px 4px 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.quill-mount .ql-container.ql-snow {
+  border: none;
+  font-size: 1rem;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  flex: 1;
+}
+
+.quill-mount .ql-editor {
+  padding: 2.5rem 3rem;
+  min-height: calc(100vh - 200px);
+  line-height: 1.75;
+  color: #1a1a2e;
+}
+
+.quill-mount .ql-editor.ql-blank::before {
+  color: #c0c4d6;
+  font-style: normal;
+  left: 3rem;
+}
+
+.quill-mount .ql-editor h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+.quill-mount .ql-editor h2 { font-size: 1.5rem; margin-bottom: 0.4rem; }
+.quill-mount .ql-editor h3 { font-size: 1.2rem; margin-bottom: 0.3rem; }
+.quill-mount .ql-editor p  { margin-bottom: 0.5rem; }
+
+.quill-mount .ql-editor blockquote {
+  border-left: 3px solid #4c6ef5;
+  padding-left: 1rem;
+  color: #666;
+  margin: 0.75rem 0;
+  font-style: italic;
+}
+
+.quill-mount .ql-editor code,
+.quill-mount .ql-editor pre {
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.875em;
+}
+
+.quill-mount .ql-editor pre.ql-syntax {
+  background: #1a1d2e;
+  color: #a8b2d8;
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+/* ── Remote Cursors (quill-cursors) ─────────────────────────────── */
+.ql-cursor-flag {
+  border-radius: 0 3px 3px 3px !important;
+  font-size: 0.7rem !important;
+  padding: 1px 5px !important;
+  white-space: nowrap !important;
+}
+
+/* ── Revision Overlay ───────────────────────────────────────────── */
+.revision-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+}
+
+.revision-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 340px;
+  background: #fff;
+  border-left: 1px solid #e8eaf0;
+  display: flex;
+  flex-direction: column;
+  pointer-events: all;
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.1);
+  animation: slide-in 0.2s ease-out;
+}
+
+@keyframes slide-in {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);   opacity: 1; }
+}
+
+.revision-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f0f2f5;
+  background: #fafbff;
+  flex-shrink: 0;
+}
+
+.revision-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1a1d2e;
+}
+
+.revision-close {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #9098b8;
+  line-height: 1;
+  padding: 0.2rem;
+  border-radius: 4px;
+  transition: background 0.1s;
+}
+
+.revision-close:hover {
+  background: #f0f2f5;
+  color: #1a1d2e;
+}
+
+.revision-body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.revision-list {
+  padding: 0.75rem;
+  flex: 1;
+}
+
+.revision-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: #9098b8;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.revision-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid #f0f2f5;
+  border-radius: 8px;
+  margin-bottom: 0.4rem;
+  cursor: pointer;
+  background: #fff;
+  text-align: left;
+  transition: all 0.12s;
+}
+
+.revision-item:hover {
+  background: #f5f7ff;
+  border-color: #c5cef5;
+}
+
+.revision-item.active {
+  background: #eef1ff;
+  border-color: #4c6ef5;
+}
+
+.revision-item-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c5cef5;
+  flex-shrink: 0;
+}
+
+.revision-item.active .revision-item-dot {
+  background: #4c6ef5;
+}
+
+.revision-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.revision-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1a1d2e;
+}
+
+.revision-time {
+  font-size: 0.72rem;
+  color: #9098b8;
+}
+
+.revision-preview {
+  border-top: 1px solid #f0f2f5;
+  padding: 1rem 1.25rem;
+  background: #fafbff;
+  flex-shrink: 0;
+}
+
+.revision-preview-header {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #9098b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.6rem;
+}
+
+.revision-preview-text {
+  font-size: 0.8rem;
+  color: #444;
+  line-height: 1.6;
+  background: #f5f7ff;
+  border-radius: 6px;
+  padding: 0.75rem;
+  max-height: 140px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-bottom: 0.75rem;
+  font-family: 'Georgia', serif;
+}
+
+.revision-restore-btn {
+  width: 100%;
+  padding: 0.65rem;
+  background: #4c6ef5;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.revision-restore-btn:hover {
+  background: #3b5be0;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #dde0ec; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #b0b8d8; }
+
+/* ── Loading Overlay ────────────────────────────────────────────── */
+.editor-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(15, 17, 23, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: #8090b8;
+  font-size: 0.9rem;
+}
+
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #252840;
+  border-top-color: #4c6ef5;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Topbar: doc ID + share ─────────────────────────────────────── */
+.topbar-sep {
+  width: 1px;
+  height: 18px;
+  background: #252840;
+  margin: 0 0.25rem;
+}
+
+.topbar-doc-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.topbar-doc-id {
+  font-size: 0.78rem;
+  color: #4a5480;
+  font-family: 'Fira Code', monospace;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbar-share-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(76, 110, 245, 0.1);
+  border: 1px solid rgba(76, 110, 245, 0.3);
+  color: #7090e8;
+  border-radius: 5px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.topbar-share-btn:hover {
+  background: rgba(76, 110, 245, 0.2);
+  color: #fff;
+}
+
+/* ── Responsive Topbar ──────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .editor-topbar {
+    padding: 0 0.75rem;
+    gap: 0.5rem;
+  }
+  .topbar-brand { display: none; }
+  .topbar-sep   { display: none; }
+  .topbar-doc-id { max-width: 72px; }
+  .btn-history-label { display: none; }
+  .user-count { display: none; }
+  .save-badge { display: none; }
+}
+
+@media (max-width: 480px) {
+  .editor-main { padding: 0.75rem 0.25rem; }
+  .editor-page { border-radius: 0; box-shadow: none; }
+  .quill-mount .ql-editor { padding: 1.25rem 1rem; }
+  .quill-mount .ql-editor.ql-blank::before { left: 1rem; }
+}
+
+/* ── Responsive Revision Panel ──────────────────────────────────── */
+@media (max-width: 640px) {
+  .revision-panel {
+    width: 100vw;
+    border-left: none;
+    border-top: 1px solid #e8eaf0;
+    top: auto;
+  }
+}

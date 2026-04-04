@@ -1,0 +1,264 @@
+/* ── Reset ─────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: #0f1117;
+  color: #1a1d2e;
+}
+
+/* ── Join Screen ────────────────────────────────────────────────── */
+.join-screen {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #0f1117;
+  overflow: hidden;
+}
+
+.join-bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(76, 110, 245, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(76, 110, 245, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+.join-card {
+  position: relative;
+  background: #181c2e;
+  border: 1px solid rgba(76, 110, 245, 0.25);
+  border-radius: 16px;
+  padding: 2.75rem 2.5rem;
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow:
+    0 0 0 1px rgba(76,110,245,0.1),
+    0 24px 60px rgba(0, 0, 0, 0.5),
+    0 0 80px rgba(76, 110, 245, 0.08);
+}
+
+.join-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.25rem;
+}
+
+.join-logo span {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.join-card h1 {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+}
+
+.join-card > p {
+  font-size: 0.82rem;
+  color: #5a6080;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.join-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.join-input-group input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #0f1117;
+  border: 1.5px solid #2a2f4a;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.join-input-group input::placeholder {
+  color: #3a3f5a;
+}
+
+.join-input-group input:focus {
+  border-color: #4c6ef5;
+  box-shadow: 0 0 0 3px rgba(76, 110, 245, 0.12);
+}
+
+.join-error {
+  font-size: 0.78rem;
+  color: #f87171;
+  padding-left: 0.25rem;
+}
+
+.join-btn {
+  width: 100%;
+  padding: 0.8rem;
+  background: #4c6ef5;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: -0.01em;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.join-btn:hover {
+  background: #3b5be0;
+}
+
+.join-btn:active {
+  transform: scale(0.98);
+}
+
+.join-features {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.25rem;
+}
+
+.join-features span {
+  font-size: 0.72rem;
+  color: #3a4060;
+  letter-spacing: 0.01em;
+}
+
+/* ── Join Divider ───────────────────────────────────────────────── */
+.join-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #2a2f4a;
+  font-size: 0.78rem;
+}
+.join-divider::before,
+.join-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #2a2f4a;
+}
+.join-divider span { white-space: nowrap; color: #4a5070; }
+
+/* ── Join Row (input + button side by side) ─────────────────────── */
+.join-row {
+  display: flex;
+  gap: 0.5rem;
+}
+.join-row input { flex: 1; }
+
+.join-btn-secondary {
+  padding: 0.75rem 1rem;
+  background: #252840;
+  color: #8090c8;
+  border: 1.5px solid #2d3258;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.join-btn-secondary:hover {
+  background: #2d3258;
+  color: #fff;
+  border-color: #4c6ef5;
+}
+
+/* ── Join Input Labels ──────────────────────────────────────────── */
+.join-input-group label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #4a5480;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.4rem;
+}
+
+/* ── Doc ID chip on join page ───────────────────────────────────── */
+.doc-id-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #0f1117;
+  border: 1px solid #2a2f4a;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  color: #6070a0;
+}
+.doc-id-chip code {
+  font-family: 'Fira Code', monospace;
+  color: #a0b0e0;
+  font-size: 0.85rem;
+  flex: 1;
+}
+.copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: #252840;
+  border: 1px solid #2d3258;
+  color: #8090b8;
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.copy-btn:hover { background: #2d3258; color: #fff; }
+
+/* ── Back button ────────────────────────────────────────────────── */
+.join-back {
+  background: none;
+  border: none;
+  color: #3a4060;
+  font-size: 0.82rem;
+  cursor: pointer;
+  text-align: center;
+  transition: color 0.15s;
+}
+.join-back:hover { color: #6080c0; }
+
+/* ── Responsive: mobile join screen ────────────────────────────── */
+@media (max-width: 480px) {
+  .join-card {
+    width: calc(100vw - 2rem);
+    padding: 2rem 1.5rem;
+    border-radius: 12px;
+  }
+  .join-card h1 { font-size: 1.35rem; }
+  .join-row { flex-direction: column; }
+  .join-btn-secondary { width: 100%; }
+}

@@ -1,0 +1,172 @@
+import { useEffect, useRef, useState, useCallback } from 'react';
+import Quill from 'quill';
+import QuillCursors from 'quill-cursors';
+import 'quill/dist/quill.snow.css';
+import { useCollaboration } from '../hooks/useCollaboration.js';
+import UserPresence from './UserPresence.jsx';
+import RevisionHistory from './RevisionHistory.jsx';
+import '../styles/editor.css';
+
+Quill.register('modules/cursors', QuillCursors);
+
+const TOOLBAR_OPTIONS = [
+  [{ header: [1, 2, 3, false] }],
+  ['bold', 'italic', 'underline', 'strike'],
+  [{ color: [] }, { background: [] }],
+  [{ list: 'ordered' }, { list: 'bullet' }],
+  [{ indent: '-1' }, { indent: '+1' }],
+  ['blockquote', 'code-block'],
+  ['link'],
+  ['clean'],
+];
+
+export default function Editor({ docId, username }) {
+  const editorContainerRef = useRef(null);
+  const quillRef = useRef(null);
+  const cursorsModuleRef = useRef(null);
+  const [showRevisions, setShowRevisions] = useState(false);
+  const [saveIndicator, setSaveIndicator] = useState('');
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  // Init Quill once
+  useEffect(() => {
+    if (quillRef.current) return;
+    const quill = new Quill(editorContainerRef.current, {
+      theme: 'snow',
+      placeholder: 'Start typing to collaborate…',
+      modules: {
+        toolbar: TOOLBAR_OPTIONS,
+        cursors: { transformOnTextChange: true, hideDelayMs: 3000, hideSpeedMs: 400 },
+        history: { delay: 500, maxStack: 500, userOnly: true },
+      },
+    });
+    quillRef.current = quill;
+    cursorsModuleRef.current = quill.getModule('cursors');
+  }, []);
+
+  const { users, revisions, fetchRevisions, connected, loading, onSocket } = useCollaboration({
+    quillRef,
+    docId,
+    username,
+  });
+
+  // Wire remote cursors via the stable callback
+  useEffect(() => {
+    const cursors = cursorsModuleRef.current;
+    if (!cursors) return;
+
+    return onSocket((socket) => {
+      const handleCursorUpdate = ({ socketId, username: uname, color, range }) => {
+        if (!range) { cursors.removeCursor(socketId); return; }
+        cursors.createCursor(socketId, uname, color);
+        cursors.moveCursor(socketId, range);
+      };
+      const handleCursorRemove = ({ socketId }) => cursors.removeCursor(socketId);
+
+      socket.on('cursor-update', handleCursorUpdate);
+      socket.on('cursor-remove', handleCursorRemove);
+
+      return () => {
+        socket.off('cursor-update', handleCursorUpdate);
+        socket.off('cursor-remove', handleCursorRemove);
+      };
+    });
+  }, [onSocket]);
+
+  // Save indicator
+  useEffect(() => {
+    return onSocket((socket) => {
+      let t1, t2;
+      const handler = () => {
+        setSaveIndicator('saving');
+        clearTimeout(t1); clearTimeout(t2);
+        t1 = setTimeout(() => setSaveIndicator('saved'), 2100);
+        t2 = setTimeout(() => setSaveIndicator(''), 3500);
+      };
+      socket.on('yjs-update', handler);
+      return () => { socket.off('yjs-update', handler); clearTimeout(t1); clearTimeout(t2); };
+    });
+  }, [onSocket]);
+
+  const handleOpenRevisions = () => { fetchRevisions(); setShowRevisions(true); };
+
+  const handleRestore = useCallback((delta) => {
+    quillRef.current?.setContents(delta);
+    setShowRevisions(false);
+  }, []);
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(window.location.href).catch(() => {});
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
+
+  return (
+    <div className="editor-root">
+      {/* Loading overlay */}
+      {loading && (
+        <div className="editor-loading">
+          <div className="loading-spinner" />
+          <span>Connecting to document…</span>
+        </div>
+      )}
+
+      {/* Top bar */}
+      <header className="editor-topbar">
+        <div className="topbar-left">
+          <div className="topbar-logo">
+            <svg width="22" height="22" viewBox="0 0 36 36" fill="none">
+              <rect width="36" height="36" rx="7" fill="#4c6ef5" />
+              <path d="M9 11h10M9 18h18M9 25h13" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+            </svg>
+            <span className="topbar-brand">CoEdit</span>
+          </div>
+          <div className="topbar-sep" />
+          <div className="topbar-doc-info">
+            <span className="topbar-doc-id">{docId}</span>
+            <button className="topbar-share-btn" onClick={copyLink} title="Copy invite link">
+              {linkCopied ? (
+                <>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                  Share
+                </>
+              )}
+            </button>
+          </div>
+          {saveIndicator === 'saving' && <span className="save-badge saving">Saving…</span>}
+          {saveIndicator === 'saved'  && <span className="save-badge saved">✓ Saved</span>}
+        </div>
+
+        <div className="topbar-right">
+          <UserPresence users={users} connected={connected} />
+          <button className="btn-history" onClick={handleOpenRevisions}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 8v4l3 3M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" />
+            </svg>
+            <span className="btn-history-label">History</span>
+          </button>
+        </div>
+      </header>
+
+      {/* Editor */}
+      <main className="editor-main">
+        <div className="editor-page">
+          <div ref={editorContainerRef} className="quill-mount" />
+        </div>
+      </main>
+
+      {showRevisions && (
+        <RevisionHistory
+          revisions={revisions}
+          onClose={() => setShowRevisions(false)}
+          onRestore={handleRestore}
+        />
+      )}
+    </div>
+  );
+}

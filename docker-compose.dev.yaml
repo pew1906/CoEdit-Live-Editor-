@@ -1,0 +1,63 @@
+services:
+  coedit-mongodb:
+    container_name: coedit-mongodb
+    command: mongod --quiet --logpath /dev/null
+    environment:
+      MONGO_INITDB_DATABASE: coedit-db
+    image: mongo:7.0.3
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: echo 'db.stats().ok' | mongosh localhost:27017/coedit-db --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    networks:
+      - coedit-nw
+
+  coedit-server:
+    container_name: coedit-server
+    environment:
+      - MODE=development
+      - PROJ_DB_CONNECTION_STRING=mongodb://coedit-mongodb:27017/coedit-db
+      - PROJ_DEPLOYED_FRONTEND_URL=http://localhost:${PROJ_CLIENT_PORT}
+      - PROJ_SERVER_PORT=${PROJ_SERVER_PORT}
+      - DEFAULT_DOC_ID=${DEFAULT_DOC_ID}
+      - SAVE_DEBOUNCE_MS=${SAVE_DEBOUNCE_MS}
+      - REVISION_DEBOUNCE_MS=${REVISION_DEBOUNCE_MS}
+    build:
+      context: ./
+      dockerfile: Dockerfile.server
+    image: coedit-server
+    ports:
+      - "${PROJ_SERVER_PORT}:${PROJ_SERVER_PORT}"
+    depends_on:
+      coedit-mongodb:
+        condition: service_healthy
+    networks:
+      - coedit-nw
+
+  coedit-client:
+    container_name: coedit-client
+    build:
+      context: ./
+      dockerfile: Dockerfile.client
+    image: coedit-client
+    ports:
+      - "${PROJ_CLIENT_PORT}:${PROJ_CLIENT_PORT}"
+    environment:
+      - VITE_SERVER_URL=http://localhost:${PROJ_SERVER_PORT}
+      - VITE_DEFAULT_DOC_ID=${DEFAULT_DOC_ID}
+    depends_on:
+      - coedit-server
+    networks:
+      - coedit-nw
+
+volumes:
+  mongodb_data:
+
+networks:
+  coedit-nw:
+    driver: bridge

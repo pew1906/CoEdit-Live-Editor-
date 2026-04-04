@@ -1,0 +1,16 @@
+FROM node:20.9.0-alpine
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+COPY server/package.json server/pnpm-lock.yaml* ./
+
+RUN pnpm install
+
+COPY server/ .
+
+EXPOSE 8001
+
+CMD ["node", "index.js"]
