@@ -18,6 +18,64 @@ const Size = Quill.import('attributors/style/size');
 Size.whitelist = ['8px','9px','10px','11px','12px','14px','16px','18px','24px','36px'];
 Quill.register(Size, true);
 
+// Custom image resize handler
+function setupImageResize(quill) {
+  let selected = null;
+  let startX, startW;
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position:absolute; border:2px solid #4c6ef5; pointer-events:none; display:none; box-sizing:border-box;
+  `;
+  document.body.appendChild(overlay);
+
+  const handle = document.createElement('div');
+  handle.style.cssText = `
+    position:absolute; bottom:-5px; right:-5px; width:12px; height:12px;
+    background:#4c6ef5; border-radius:50%; cursor:se-resize; pointer-events:all;
+  `;
+  overlay.appendChild(handle);
+
+  quill.root.addEventListener('click', (e) => {
+    if (e.target.tagName === 'IMG') {
+      selected = e.target;
+      const rect = selected.getBoundingClientRect();
+      overlay.style.display = 'block';
+      overlay.style.left = rect.left + window.scrollX + 'px';
+      overlay.style.top = rect.top + window.scrollY + 'px';
+      overlay.style.width = rect.width + 'px';
+      overlay.style.height = rect.height + 'px';
+    } else if (e.target !== handle) {
+      selected = null;
+      overlay.style.display = 'none';
+    }
+  });
+
+  handle.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    startX = e.clientX;
+    startW = selected.width;
+
+    const onMove = (e) => {
+      if (!selected) return;
+      const newW = Math.max(50, startW + (e.clientX - startX));
+      selected.style.width = newW + 'px';
+      selected.style.height = 'auto';
+      const rect = selected.getBoundingClientRect();
+      overlay.style.width = rect.width + 'px';
+      overlay.style.height = rect.height + 'px';
+    };
+
+    const onUp = () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+}
+
 const TOOLBAR_OPTIONS = [
   [{ font: ['arial', 'times-new-roman', 'calibri', 'georgia', 'courier-new', 'verdana', 'trebuchet'] }, { size: ['8px','9px','10px','11px','12px','14px','16px','18px','24px','36px'] }],
   [{ header: [1, 2, 3, false] }],
@@ -52,6 +110,7 @@ export default function Editor({ docId, username }) {
     });
     quillRef.current = quill;
     cursorsModuleRef.current = quill.getModule('cursors');
+    setupImageResize(quill);  
   }, []);
 
   const { users, revisions, fetchRevisions, connected, loading, onSocket } = useCollaboration({
