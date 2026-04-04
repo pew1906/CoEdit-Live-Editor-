@@ -1,0 +1,33 @@
+services:
+  # ── Web Service: Node.js server + serves built React client ──────
+  - type: web
+    name: coedit-server
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: npm run build && cd server && npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PROJ_SERVER_PORT
+        value: 8001
+      - key: PROJ_DB_CONNECTION_STRING
+        fromDatabase:
+          name: coedit-mongodb
+          property: connectionString
+      - key: PROJ_DEPLOYED_FRONTEND_URL
+        fromService:
+          type: web
+          name: coedit-server
+          property: host
+      - key: SAVE_DEBOUNCE_MS
+        value: 2000
+      - key: REVISION_DEBOUNCE_MS
+        value: 10000
+    healthCheckPath: /health
+
+databases:
+  # Render does not host MongoDB natively — use MongoDB Atlas (free tier).
+  # Delete this section and set PROJ_DB_CONNECTION_STRING manually in the dashboard.
+  # See DEPLOY.md for instructions.

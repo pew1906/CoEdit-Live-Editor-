@@ -8,4 +8,8 @@ export default defineConfig({
     port: parseInt(process.env.VITE_PORT || '5173', 10),
     strictPort: true,
   },
+  build: {
+    outDir: 'dist',
+    sourcemap: false,
+  },
 });

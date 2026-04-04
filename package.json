@@ -1,0 +1,14 @@
+{
+  "name": "coedit",
+  "version": "1.0.0",
+  "description": "CoEdit - Real-time collaborative editor",
+  "private": true,
+  "scripts": {
+    "build": "cd client && npm install && npm run build",
+    "start": "cd server && node index.js",
+    "install:all": "cd client && npm install && cd ../server && npm install"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

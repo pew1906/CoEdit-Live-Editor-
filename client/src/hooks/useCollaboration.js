@@ -3,23 +3,27 @@ import * as Y from 'yjs';
 import { QuillBinding } from 'y-quill';
 import { io } from 'socket.io-client';
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:8001';
+// In production (same origin), connect to window.location.origin.
+// In dev, use the env var pointing to localhost:8001.
+const SERVER_URL =
+  import.meta.env.VITE_SERVER_URL ||
+  (import.meta.env.PROD ? window.location.origin : 'http://localhost:8001');
 
 /**
  * useCollaboration
  * Wires a Quill instance to a shared Yjs doc via Socket.IO.
  *
  * Returns:
- *  - users        : active user list
- *  - revisions    : fetched revisions
- *  - fetchRevisions : fn to request revision list
- *  - connected    : socket connected state
- *  - loading      : true until first yjs-init received
- *  - onSocket     : stable fn to register socket listeners safely
+ *  - users          active user list
+ *  - revisions      fetched revisions
+ *  - fetchRevisions fn to request revision list
+ *  - connected      socket connected bool
+ *  - loading        true until first yjs-init received
+ *  - onSocket       register socket listeners safely
  */
 export function useCollaboration({ quillRef, docId, username }) {
   const socketRef = useRef(null);
-  const listenersRef = useRef([]);   // callbacks waiting for socket
+  const listenersRef = useRef([]);
 
   const [users, setUsers] = useState([]);
   const [revisions, setRevisions] = useState([]);
@@ -35,13 +39,13 @@ export function useCollaboration({ quillRef, docId, username }) {
     const binding = new QuillBinding(ytext, quill);
 
     const socket = io(SERVER_URL, {
-      transports: ['websocket'],
+      transports: ['websocket', 'polling'],
       reconnectionAttempts: 10,
       reconnectionDelay: 1000,
     });
     socketRef.current = socket;
 
-    // Notify all onSocket subscribers
+    // Fire any queued onSocket callbacks
     const cleanups = listenersRef.current.map((cb) => cb(socket)).filter(Boolean);
 
     socket.on('connect', () => {
@@ -78,7 +82,7 @@ export function useCollaboration({ quillRef, docId, username }) {
     };
     quill.on('selection-change', handleSelectionChange);
 
-    // Fallback: if server never sends yjs-init (empty doc), stop loading after timeout
+    // Fallback: stop loading after timeout if server is slow
     const loadingTimeout = setTimeout(() => setLoading(false), 4000);
 
     return () => {
@@ -98,17 +102,14 @@ export function useCollaboration({ quillRef, docId, username }) {
 
   /**
    * onSocket(callback)
-   * Safely registers socket event listeners. If the socket is already live,
-   * fires immediately. Otherwise queues until socket connects.
-   * The callback receives the socket and should return a cleanup fn.
-   * Returns a cleanup function to deregister.
+   * Safe listener registration — fires immediately if socket is live,
+   * otherwise queues. Callback receives socket, returns cleanup fn.
    */
   const onSocket = useCallback((callback) => {
     if (socketRef.current) {
       const cleanup = callback(socketRef.current);
       return cleanup ?? (() => {});
     }
-    // Queue for when socket connects
     listenersRef.current.push(callback);
     return () => {
       listenersRef.current = listenersRef.current.filter((cb) => cb !== callback);
