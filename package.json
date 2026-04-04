@@ -5,10 +5,10 @@
   "private": true,
   "scripts": {
     "build": "cd client && npm install && npm run build",
-    "start": "cd server && node index.js",
+    "start": "NODE_ENV=production node server/index.js",
     "install:all": "cd client && npm install && cd ../server && npm install"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": "20.x"
   }
 }
