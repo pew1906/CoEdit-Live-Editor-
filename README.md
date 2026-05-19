@@ -4,7 +4,6 @@
 
 🔗 **Live Demo:** [https://coedit-live-editor.onrender.com]  
 📁 **GitHub:** [https://github.com/pew1906/CoEdit-Live-Editor-] 
-🎥 **Video Demo:** [https://drive.google.com/file/d/1XkDgnwYU2lai9-AFvA0fK6-lS4eUSst6/view?usp=sharing]
 
 ---
 
